@@ -22,10 +22,16 @@ variable "dns_prefix" {
   default     = "power-engine"
 }
 
-variable "node_count" {
-  description = "Number of AKS worker nodes"
+variable "node_min_count" {
+  description = "Minimum number of AKS worker nodes (cluster autoscaler)"
   type        = number
   default     = 2
+}
+
+variable "node_max_count" {
+  description = "Maximum number of AKS worker nodes (cluster autoscaler)"
+  type        = number
+  default     = 6
 }
 
 variable "node_vm_size" {

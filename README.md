@@ -11,8 +11,34 @@
 - Argo CD GitOps app-of-apps manifests
 - Prometheus and Grafana monitoring resources
 - Terraform AKS provisioning and app deployment
-- GitHub Actions CI pipeline for validation and image build
+- Cluster (node) autoscaling via AKS's cluster autoscaler
+- NGINX ingress controller behind an Azure LoadBalancer for external traffic
+- Horizontal Pod Autoscaling (CPU + memory) and Vertical Pod Autoscaling (recommendation mode)
+- GitHub Actions CI pipeline for validation, image build, and security scanning (Trivy, Terrascan) with OIDC Azure login
 - Deployment helper script for quick rollout
+
+## Autoscaling
+
+- **Node autoscaling**: `terraform/aks` provisions the AKS default node pool with the cluster autoscaler enabled (`node_min_count` / `node_max_count` in `variables.tf`).
+- **Horizontal Pod Autoscaling**: `k8s/base/hpa.yaml` and the Helm chart's `hpa.yaml` scale on both CPU and memory utilization.
+- **Vertical Pod Autoscaling**: `k8s/base/vpa.yaml` and the Helm chart's `vpa.yaml` run in `updateMode: "Off"` (recommendations only) so they don't fight with the HPA over CPU/memory. The VPA controller itself is installed via the `helm_release.vpa` resource in `terraform/aks/main.tf` (Fairwinds VPA chart). On non-AKS clusters (e.g. local Docker Desktop), install the [Kubernetes VPA components](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) yourself before applying `vpa.yaml`, or drop it from the overlay.
+
+## Traffic / load balancing
+
+`terraform/aks` installs the `ingress-nginx` controller (`helm_release.ingress_nginx`) with `controller.service.type=LoadBalancer`, which provisions an Azure Standard Load Balancer to front external traffic to the `power-engine` Ingress.
+
+## CI/CD security
+
+The GitHub Actions workflow (`.github/workflows/ci-cd.yml`) runs:
+
+- **Trivy** — config/IaC scan of the repo and a vulnerability scan of the built container image (fails on CRITICAL/HIGH findings).
+- **Terrascan** — policy scans of the Terraform (`terraform/aks`) and Kubernetes (`k8s/base`) manifests.
+- **OIDC Azure login** (`azure/login@v2`) for the `terraform-plan` job — no long-lived Azure credentials are stored in GitHub. Configure a federated credential on an Azure AD app registration for this repo, then set these repository secrets:
+  - `AZURE_CLIENT_ID`
+  - `AZURE_TENANT_ID`
+  - `AZURE_SUBSCRIPTION_ID`
+
+  The workflow only runs `terraform plan` (never `apply`) — provisioning real AKS infrastructure remains a manual step (see below).
 
 ## Project layout
 

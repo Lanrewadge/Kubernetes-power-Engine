@@ -1,0 +1,20 @@
+{{- if .Values.verticalAutoscaling.enabled }}
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: {{ include "kubernetes-power-engine.fullname" . }}
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "kubernetes-power-engine.fullname" . }}
+  updatePolicy:
+    updateMode: {{ .Values.verticalAutoscaling.updateMode | quote }}
+  resourcePolicy:
+    containerPolicies:
+      - containerName: {{ include "kubernetes-power-engine.name" . }}
+        minAllowed:
+{{ toYaml .Values.verticalAutoscaling.minAllowed | indent 10 }}
+        maxAllowed:
+{{ toYaml .Values.verticalAutoscaling.maxAllowed | indent 10 }}
+{{- end }}
