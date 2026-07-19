@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: power-engine
+  namespace: power-engine
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: power-engine.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: power-engine
+                port:
+                  number: 80

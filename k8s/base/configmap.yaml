@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: power-engine-config
+  namespace: power-engine
+data:
+  APP_ENV: development
+  APP_VERSION: v1

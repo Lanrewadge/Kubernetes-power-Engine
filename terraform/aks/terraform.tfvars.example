@@ -1,0 +1,10 @@
+location            = "eastus"
+resource_group_name = "rg-kubernetes-power-engine"
+cluster_name        = "aks-power-engine"
+dns_prefix          = "power-engine"
+node_count          = 2
+node_vm_size        = "Standard_D2s_v5"
+kubernetes_version  = "1.30"
+app_namespace       = "power-engine"
+image_repository    = "ghcr.io/lanrewadge/kubernetes-power-engine"
+image_tag           = "latest"

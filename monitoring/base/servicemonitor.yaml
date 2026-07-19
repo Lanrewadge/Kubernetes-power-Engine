@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: power-engine
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - power-engine
+  selector:
+    matchLabels:
+      app: power-engine
+      monitor: enabled
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

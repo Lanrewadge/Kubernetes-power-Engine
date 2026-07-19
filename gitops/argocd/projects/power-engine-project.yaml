@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: power-engine
+  namespace: argocd
+spec:
+  description: Project for Kubernetes Power Engine environments
+  sourceRepos:
+    - https://github.com/Lanrewadge/Kubernetes-power-Engine.git
+  destinations:
+    - namespace: power-engine
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: "*"
+      kind: "*"

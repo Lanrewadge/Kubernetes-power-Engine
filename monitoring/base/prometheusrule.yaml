@@ -1,0 +1,27 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: power-engine-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: power-engine.rules
+      rules:
+        - alert: PowerEngineHighErrorRate
+          expr: sum(rate(flask_http_request_exceptions_total[5m])) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Power Engine error rate is high"
+            description: "The application is reporting frequent exceptions."
+        - alert: PowerEnginePodsUnavailable
+          expr: kube_deployment_status_replicas_unavailable{deployment="power-engine",namespace="power-engine"} > 0
+          for: 10m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Power Engine pods unavailable"
+            description: "One or more Power Engine pods are unavailable."

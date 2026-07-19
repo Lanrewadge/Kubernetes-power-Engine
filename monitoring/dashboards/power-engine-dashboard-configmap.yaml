@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: power-engine-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  power-engine-dashboard.json: |
+    {
+      "title": "Power Engine Overview",
+      "uid": "power-engine-overview",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "panels": [
+        {
+          "type": "timeseries",
+          "title": "HTTP Request Rate",
+          "targets": [
+            {
+              "expr": "sum(rate(flask_http_request_total[1m]))"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Exceptions Rate",
+          "targets": [
+            {
+              "expr": "sum(rate(flask_http_request_exceptions_total[1m]))"
+            }
+          ],
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          }
+        }
+      ]
+    }
